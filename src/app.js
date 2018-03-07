@@ -6,7 +6,7 @@ const STATUS_USER_ERROR = 422;
 const PORT = 3000;
 let wordArr = [];
 let wordSoFar = [];
-const finalWord =[];
+let finalWord =[];
 
 const server = express();
 // to enable parsing of json bodies for post requests
@@ -17,43 +17,46 @@ const readWords = () => {
   const contents = fs.readFileSync('words.txt', 'utf8');
   return contents.split('\n');
 };
-const word = readWords()[100];
+
+    const words = readWords();
+    const word = words[Math.floor(Math.random()*words.length)];
+    console.log(word.split(''));
+    wordArr = word.split('');
+    finalWord = word.split('').map(l => {
+        return '_';
+    })
+    console.log(finalWord);
+    
 
 server.get("/", (req, res) => {
-    
-    console.log(finalWord);
-    let currentWord =word.split(' ');
-    currentWord = currentWord.map(l => {
-
-    })
     res.status(200);
-    res.send(finalWord);
-});
+    res.send(`Input any single letter like "letter":"l" ${finalWord}`);
+    });    
 
 server.post("/guess", (req, res) => {
-    // if(wordArr.length === 0) {
-    //     finalWord.forEach(l => {
-    //        wordSoFar.push('-');
-    //     });
-    // }
-    // console.log(wordSoFar);
-    // res.status(200);
-    // res.send(wordSoFar);
-
+    console.log(req.body.letter );
     if(!req.body.letter) {
         res.status(422);
         res.send({ error: "User must provide a letter"});
     } else if (req.body.letter > 1) {
         res.status(422);
-        res.send({ error: "User must provide letter only"});
-    } else if (req.body.letter > 1) {
-        res.status(422);
-        res.send({ error: "User must provide letter only"});
-    } else {
-        guessedLetters[req.body.letter] = true;
+        res.send({ error: "User must provide one letter only"});
+    } 
+    else if(wordSoFar.includes(req.body.letter)){
         res.status(200);
-        res.send();
+        res.send({ error: "Choose different letter"});
     }
+    else {
+        wordSoFar.push(req.body.letter);
+    for(let i=0;i<=finalWord.length;i++){
+            if(wordArr[i] === req.body.letter) {
+                finalWord[i]=req.body.letter;
+            }
+        } 
+    }
+    res.status(200);
+    res.send(finalWord);
+     
 });
 
 
